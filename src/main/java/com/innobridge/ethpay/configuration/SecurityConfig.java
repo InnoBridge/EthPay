@@ -16,7 +16,7 @@ public class SecurityConfig {
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       http.httpBasic(withDefaults());
       http.authorizeHttpRequests((requests)
-          -> requests.anyRequest().authenticated());
+          -> requests.anyRequest().permitAll());
       return http.build();
   }
 
