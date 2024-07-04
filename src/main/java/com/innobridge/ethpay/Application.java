@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
   scanBasePackageClasses = {
     com.innobridge.ethpay.configuration.ApplicationSpecificSpringComponentScanMarker.class,
     com.innobridge.ethpay.controller.ApplicationSpecificSpringComponentScanMarker.class,
+    com.innobridge.ethpay.service.ApplicationSpecificSpringComponentScanMarker.class
   }
 )
 public class Application {
