@@ -1,0 +1,19 @@
+services:
+
+  ############ ethpay application ############
+  ethpay_application:
+    image: openjdk:22-slim
+    container_name: ethpay-application
+    working_dir: /app
+    extra_hosts:
+      - "localhost:192.168.65.2"
+    ports:
+      - 8080:8080
+      - 5005:5005
+    env_file:
+      - .env
+    volumes:
+      - ${PWD}:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./local/root:/root
+    tty: true

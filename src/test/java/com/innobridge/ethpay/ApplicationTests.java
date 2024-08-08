@@ -1,4 +1,4 @@
-package io.github.yilengyao.ethpay;
+package com.innobridge.ethpay;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
