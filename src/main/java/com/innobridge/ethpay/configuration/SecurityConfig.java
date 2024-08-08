@@ -21,10 +21,10 @@ public class SecurityConfig {
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http,
                                           CustomAuthenticationProvider authenticationProvider) throws Exception {
-      http.httpBasic(withDefaults());
-      http.authenticationProvider(authenticationProvider);
+//      http.httpBasic(withDefaults());
+//      http.authenticationProvider(authenticationProvider);
       http.authorizeHttpRequests((requests)
-          -> requests.anyRequest().authenticated());
+          -> requests.anyRequest().permitAll());
       return http.build();
   }
 
