@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 @Configuration
 public class RepositoryConfig {
-    public static final String COMPANY_DATABASE = "CompanyDB";
+    public static final String COMPANY_DATABASE = "EthPay";
 
     @Autowired
     private MongoClient mongoClient;

@@ -20,9 +20,14 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
         Query query = new Query(Criteria.where("id").is(id));
         Update update = new Update()
                 .set("username", user.getUsername())
-//                .set("roles", user.getRoles())
+                .set("email", user.getEmail())
                 .set("password", user.getPassword())
-                .set("refreshToken", user.getRefreshToken());
+                .set("refreshToken", user.getRefreshToken())
+                .set("authorities", user.getAuthorities())
+                .set("accountNonExpired", user.isAccountNonExpired())
+                .set("accountNonLocked", user.isAccountNonLocked())
+                .set("credentialsNonExpired", user.isCredentialsNonExpired())
+                .set("enabled", user.isEnabled());
 
         return mongoTemplate.findAndModify(
                 query,
