@@ -1,70 +1,59 @@
 package com.innobridge.ethpay.configuration;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
+import com.innobridge.ethpay.security.UsernameEmailPasswordAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.innobridge.ethpay.service.CustomAuthenticationProvider;
-
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-  public static final String[] WHITELISTED_ENDPOINTS = {
-          "/auth/signup",       // Signup endpoint
+  public static final String[] WHITE_LIST_URL = {
           "/swagger-ui/**",         // Swagger UI
           "/v3/api-docs/**",         // Swagger API docs
-          "/oauth2/**"              // OAuth2 endpoints
+          "/auth/signup",            // Signup endpoint
+//          "/auth/signin",            // Signin endpoint
+          "/oauth2/**"               // OAuth2 endpoints
   };
 
   @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                          CustomAuthenticationProvider authenticationProvider) throws Exception {
-//      http.httpBasic(withDefaults());
-//      http.authenticationProvider(authenticationProvider);
-    http
-            .csrf(csrf -> csrf.disable())  // Disable CSRF protection
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(WHITELISTED_ENDPOINTS).permitAll()  // Whitelist signup endpoint
-                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll() // Whitelist login POST endpoint
-                    .anyRequest().authenticated()  // All other endpoints require authentication
-            )
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless session management
-            );
-    return http.build();
+  public AuthenticationProvider authenticationProvider() {
+    return new UsernameEmailPasswordAuthenticationProvider();
   }
 
   @Bean
-  CustomAuthenticationProvider customAuthenticationProvider(UserDetailsService userDetailsService) {
-    return new CustomAuthenticationProvider(userDetailsService);
-  }
-
-  @Bean
-  UserDetailsService userDetailsService() {
-    UserDetails user = User.withUsername("user")
-        .password("password")
-        .authorities("read")
-        .roles("USER")
-        .build();
-
-    return new InMemoryUserDetailsManager(user);
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    return authConfig.getAuthenticationManager();
   }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationConfiguration authConfig) throws Exception {
+    http
+            .csrf(csrf -> csrf.disable())  // Disable CSRF protection
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(WHITE_LIST_URL).permitAll()  // Whitelist signup endpoint
+                    .requestMatchers(HttpMethod.POST, "/auth/signin").permitAll() // Whitelist login POST endpoint
+                    .anyRequest().authenticated()  // All other endpoints require authentication
+            )
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless session management
+            )
+            .authenticationProvider(authenticationProvider());  // Register custom authentication provider
+    return http.build();
   }
 }
