@@ -13,8 +13,7 @@ public interface UserRepository extends MongoRepository<User, String>, CustomUse
     @Query("{ 'username' : ?0 }")
     Optional<User> findByUsername(String username);
 
-    // Custom query to find employee by email
-//    @Query("{ 'email' : ?0 }")
-//    public Optional<User> findByEmail(String email);
+    @Query("{ 'email' : ?0 }")
+    Optional<User> findByEmail(String email);
 
 }
