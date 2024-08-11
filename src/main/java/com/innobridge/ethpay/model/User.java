@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
 import java.util.Set;
 
 @Document(collection = "users")
@@ -17,7 +16,8 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
-    private Set<String> refreshToken;
+    private String accessToken;
+    private String refreshToken;
     private Set<GrantedAuthority> authorities;
     private boolean accountNonExpired;
     private boolean accountNonLocked;

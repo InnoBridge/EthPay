@@ -1,6 +1,9 @@
 package com.innobridge.ethpay.configuration;
 
+import com.innobridge.ethpay.security.JwtUtils;
 import com.innobridge.ethpay.security.UsernameEmailPasswordAuthenticationProvider;
+import com.innobridge.ethpay.service.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,10 +22,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   public static final String[] WHITE_LIST_URL = {
+          "/public/**",
           "/swagger-ui/**",         // Swagger UI
           "/v3/api-docs/**",         // Swagger API docs
           "/auth/signup",            // Signup endpoint
-//          "/auth/signin",            // Signin endpoint
+          "/auth/signin",            // Signin endpoint
           "/oauth2/**"               // OAuth2 endpoints
   };
 
@@ -39,6 +43,13 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public JwtUtils jwtUtils(@Value("${JWT_ACCESS_SIGNING_KEY}") String accessSigningKey,
+                           @Value("${JWT_REFRESH_SIGNING_KEY}") String refreshSigningKey,
+                           UserService userService) {
+    return new JwtUtils(accessSigningKey, refreshSigningKey, userService);
   }
 
   @Bean

@@ -18,7 +18,9 @@ cp .env.example .env
 ```
 In the .env file fill in the following environment variables
 ```text
-MONGO_DATABASE_URI=<Your MongoDB URI>
+export MONGO_DATABASE_URI=<Your MongoDB URI>
+export JWT_ACCESS_SECRET_KEY=<Your JWT Access Secret Key>
+export JWT_REFRESH_SECRET_KEY=<Your JWT Refresh Secret Key>
 ```
 
 ### Running Docker Compose

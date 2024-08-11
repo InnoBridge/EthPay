@@ -1,12 +1,19 @@
 package com.innobridge.ethpay.controller;
 
 import com.innobridge.ethpay.model.*;
+import com.innobridge.ethpay.security.JwtUtils;
 import com.innobridge.ethpay.service.UserService;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +21,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Key;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Collections;
+
+import static com.innobridge.ethpay.model.TokenType.ACCESS_TOKEN;
+import static com.innobridge.ethpay.model.TokenType.REFRESH_TOKEN;
 
 @RequestMapping("/auth")
 @RestController
@@ -24,9 +37,17 @@ public class AuthenticationController {
     private UserService userService;
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @PostMapping("/signup")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful signup",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SignupResponse.class)))
+    })
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
         if (userService.existsByUsername(signupRequest.getUsername())) {
             return ResponseEntity
@@ -58,6 +79,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful signin",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SigninResponse.class)))
+    })
     public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest signinRequest) {
         String username = signinRequest.getUsername();
         String email = signinRequest.getEmail();
@@ -79,13 +105,27 @@ public class AuthenticationController {
         // Use username if available, otherwise email
         String principal = withUsername ? username : email;
 
-        // Create custom authentication token
-        UsernameEmailPasswordAuthenticationToken authRequest = new UsernameEmailPasswordAuthenticationToken(principal, password, withUsername);
 
-        Authentication authentication = authenticationManager.authenticate(authRequest);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            // Create custom authentication token
+            UsernameEmailPasswordAuthenticationToken authRequest = new UsernameEmailPasswordAuthenticationToken(principal, password, withUsername);
 
-        return ResponseEntity.ok("Authenticated: " +authentication.isAuthenticated());
+            UsernameEmailPasswordAuthenticationToken authentication = (UsernameEmailPasswordAuthenticationToken) authenticationManager.authenticate(authRequest);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+            // Generate JWT token
+            String accessToken = jwtUtils.generateToken(authentication, ACCESS_TOKEN);
+            String refreshToken = jwtUtils.generateToken(authentication, REFRESH_TOKEN);
+
+            userService.updateTokens(authentication.getId(), accessToken, refreshToken);
+
+            return ResponseEntity.ok(new SigninResponse(accessToken, refreshToken));
+        } catch (AuthenticationException e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Error: " + e.getMessage());
+        }
     }
 
 }
