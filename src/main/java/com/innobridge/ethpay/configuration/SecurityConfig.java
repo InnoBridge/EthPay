@@ -1,6 +1,7 @@
 package com.innobridge.ethpay.configuration;
 
 import com.innobridge.ethpay.security.JwtUtils;
+import com.innobridge.ethpay.security.UsernameEmailPasswordAuthenticationFilter;
 import com.innobridge.ethpay.security.UsernameEmailPasswordAuthenticationProvider;
 import com.innobridge.ethpay.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,7 +28,6 @@ public class SecurityConfig {
           "/swagger-ui/**",         // Swagger UI
           "/v3/api-docs/**",         // Swagger API docs
           "/auth/signup",            // Signup endpoint
-          "/auth/signin",            // Signin endpoint
           "/oauth2/**"               // OAuth2 endpoints
   };
 
@@ -53,7 +54,12 @@ public class SecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationConfiguration authConfig) throws Exception {
+  public UsernameEmailPasswordAuthenticationFilter usernameEmailPasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+    return new UsernameEmailPasswordAuthenticationFilter(authenticationManager);
+  }
+
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, UsernameEmailPasswordAuthenticationFilter usernameEmailPasswordAuthenticationFilter) throws Exception {
     http
             .csrf(csrf -> csrf.disable())  // Disable CSRF protection
             .authorizeHttpRequests(auth -> auth
@@ -64,7 +70,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless session management
             )
-            .authenticationProvider(authenticationProvider());  // Register custom authentication provider
+            .authenticationProvider(authenticationProvider())  // Register custom authentication provider
+            .addFilterAt(usernameEmailPasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 }
