@@ -8,12 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Key;
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Collections;
 
 import static com.innobridge.ethpay.model.TokenType.ACCESS_TOKEN;
@@ -35,9 +27,6 @@ public class AuthenticationController {
 
     @Autowired
     private UserService userService;
-
-//    @Autowired
-//    private AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtUtils jwtUtils;

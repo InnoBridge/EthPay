@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innobridge.ethpay.controller.AuthenticationController;
 import com.innobridge.ethpay.model.SigninRequest;
 import com.innobridge.ethpay.model.UsernameEmailPasswordAuthenticationToken;
-import com.innobridge.ethpay.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
