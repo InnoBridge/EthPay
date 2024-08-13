@@ -20,6 +20,10 @@ public class UsernameEmailPasswordAuthenticationProvider implements Authenticati
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * If username and password are provided will check if the user and password are valid
+     * If email and password are provided will check if the email and password are valid
+     */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         UsernameEmailPasswordAuthenticationToken authRequest = (UsernameEmailPasswordAuthenticationToken) authentication;
@@ -43,6 +47,12 @@ public class UsernameEmailPasswordAuthenticationProvider implements Authenticati
         return new UsernameEmailPasswordAuthenticationToken(user.getId(), user.getUsername(), user.getAuthorities());
     }
 
+    /**
+     * The AuthenticationManager will choose which AuthenticationProvider to use based if the provider supports the
+     * implementation of the Authentication token.
+     * In this case, the UsernameEmailPasswordAuthenticationToken is supported. And the AuthorizationManager will
+     * use this provider to authenticate the user.
+     */
     @Override
     public boolean supports(Class<?> authentication) {
         return UsernameEmailPasswordAuthenticationToken.class.isAssignableFrom(authentication);
