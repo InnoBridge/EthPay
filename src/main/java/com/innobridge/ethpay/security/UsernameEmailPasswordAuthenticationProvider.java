@@ -1,14 +1,13 @@
 package com.innobridge.ethpay.security;
 
+import com.innobridge.ethpay.model.User;
 import com.innobridge.ethpay.model.UsernameEmailPasswordAuthenticationToken;
 import com.innobridge.ethpay.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +27,7 @@ public class UsernameEmailPasswordAuthenticationProvider implements Authenticati
         String credentials = (String) authRequest.getCredentials();
         boolean withUsername = authRequest.isWithUsername();
 
-        UserDetails user;
+        User user;
 
         if (withUsername) {
             user = userService.getByUsername(principal).orElseThrow(
@@ -41,8 +40,7 @@ public class UsernameEmailPasswordAuthenticationProvider implements Authenticati
         if (!passwordEncoder.matches(credentials, user.getPassword())) {
             throw new AuthenticationServiceException("Invalid username/email or password");
         }
-
-        return new UsernameEmailPasswordAuthenticationToken(user, credentials, withUsername, user.getAuthorities());
+        return new UsernameEmailPasswordAuthenticationToken(user.getId(), user.getUsername(), user.getAuthorities());
     }
 
     @Override

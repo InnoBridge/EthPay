@@ -28,6 +28,11 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return getByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
     public Optional<User> getByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -45,8 +50,7 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return getByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public void updateTokens(String id, String accessToken, String refreshToken) {
+        userRepository.updateTokens(id, accessToken, refreshToken);
     }
 }
