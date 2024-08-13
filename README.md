@@ -89,7 +89,7 @@ https://<application url>/swagger-ui/index.html.
 ```
 
 # Usage
-
+You can access the OpenAPI UI for calling the endpoints by going to `http://<base-url>/swagger-ui/index.html` in your browser.
 ## POST `/auth/signup`
 This api is used to register a new user. The request body should contain the following fields:
 ```json
@@ -141,3 +141,8 @@ The access old access token in storage will be replaced by the new access token.
 This api is used to logout the user. The user will need to provide the refresh token in the httpOnly cookie named `refresh-token`.
 Once authenticated using the refresh token, the refresh and access token will be deleted from storage. And the refresh token in the 
 user's browser will be deleted.
+
+## Add access token to the request header
+On OpenAPI UI, click on the Authorize button and add the access token.
+![alt text](./images/OpenAPI-Add-AccessToken.png)
+![alt text](./images/OpenAPI-Set-AccessToken.png)
