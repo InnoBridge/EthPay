@@ -23,7 +23,8 @@ public class SecurityConfig {
           "/v3/api-docs/**",         // Swagger API docs
           "/auth/signup",            // Signup endpoint
 //          "/auth/signin",            // Signin endpoint
-          "/oauth2/**"               // OAuth2 endpoints
+      "/oauth2/**", // OAuth2 endpoints
+      "/payment"
   };
 
   @Bean

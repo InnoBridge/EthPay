@@ -23,7 +23,7 @@ import java.security.cert.X509Certificate;
 public class ExternalClientConfiguration {
 
     @Bean
-    public MongoClient mongoClient(@Value("${MONGO_DATABASE_URI:}") String mongoDatabaseUri) {
+    public MongoClient mongoClient(@Value("${spring.data.mongodb.uri}") String mongoDatabaseUri) {
         if (mongoDatabaseUri == null || mongoDatabaseUri.isEmpty()) {
             String errorMessage = "MONGO_DATABASE_URI not set in the environment variables";
             log.warn(errorMessage);
