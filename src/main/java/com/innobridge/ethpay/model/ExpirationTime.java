@@ -17,8 +17,11 @@ public class ExpirationTime {
         this.seconds = seconds;
     }
 
-    public long toMillis() {
-        return (((days * 24L + hours) * 60 + minutes) * 60 + seconds) * 1000;
+    public long toSeconds() {
+        return ((days * 24L + hours) * 60 + minutes) * 60 + seconds;
     }
 
+    public long toMillis() {
+        return toSeconds() * 1000;
+    }
 }

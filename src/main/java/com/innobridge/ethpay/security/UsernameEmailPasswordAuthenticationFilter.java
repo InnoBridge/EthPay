@@ -21,6 +21,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static com.innobridge.ethpay.constants.HTTPConstants.CONTENT_TYPE;
+import static com.innobridge.ethpay.constants.HTTPConstants.SIGNIN_URL;
+
 @Component
 public class UsernameEmailPasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -28,7 +31,7 @@ public class UsernameEmailPasswordAuthenticationFilter extends UsernamePasswordA
     private AuthenticationController authenticationController;
     public UsernameEmailPasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
-        setFilterProcessesUrl("/auth/signin");
+        setFilterProcessesUrl(SIGNIN_URL);
     }
 
     @Override
@@ -58,9 +61,9 @@ public class UsernameEmailPasswordAuthenticationFilter extends UsernamePasswordA
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         SecurityContextHolder.getContext().setAuthentication(authResult);
 
-        ResponseEntity<?> responseEntity = authenticationController.authenticateUser(null);
+        ResponseEntity<?> responseEntity = authenticationController.authenticateUser(null, response);
 
-        response.setContentType("application/json");
+        response.setContentType(CONTENT_TYPE);
         response.setStatus(responseEntity.getStatusCode().value());
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
     }
@@ -71,7 +74,7 @@ public class UsernameEmailPasswordAuthenticationFilter extends UsernamePasswordA
                 .status(HttpStatus.UNAUTHORIZED)
                 .body("Error: " + failed.getMessage());
 
-        response.setContentType("application/json");
+        response.setContentType(CONTENT_TYPE);
         response.setStatus(responseEntity.getStatusCode().value());
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
     }

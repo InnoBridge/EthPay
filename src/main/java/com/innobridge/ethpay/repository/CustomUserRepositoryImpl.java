@@ -44,4 +44,21 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                 .set("refreshToken", refreshToken);
         mongoTemplate.updateFirst(query, update, User.class);
     }
+
+    @Override
+    public void updateAccessToken(String id, String accessToken) {
+        Query query = new Query(Criteria.where("id").is(id));
+        Update update = new Update()
+                .set("accessToken", accessToken);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    @Override
+    public void deleteTokens(String id) {
+        Query query = new Query(Criteria.where("id").is(id));
+        Update update = new Update()
+                .unset("accessToken")
+                .unset("refreshToken");
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
 }

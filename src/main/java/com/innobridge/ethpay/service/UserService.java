@@ -53,4 +53,12 @@ public class UserService implements UserDetailsService {
     public void updateTokens(String id, String accessToken, String refreshToken) {
         userRepository.updateTokens(id, accessToken, refreshToken);
     }
+
+    public void updateAccessToken(String id, String accessToken) {
+        userRepository.updateAccessToken(id, accessToken);
+    }
+
+    public void deleteTokens(String id) {
+        userRepository.deleteTokens(id);
+    }
 }
