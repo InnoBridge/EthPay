@@ -15,12 +15,13 @@ import org.springframework.web.server.ResponseStatusException;
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
 
 @RestController
+@RequestMapping(CONTACTS_URL)
 public class ContactController {
 
     @Autowired
     private ContactService contactService;
 
-    @GetMapping("/contacts")
+    @GetMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Retrieve user's list of email contacts",
                     content = @Content(mediaType = CONTENT_TYPE,
@@ -36,7 +37,7 @@ public class ContactController {
         }
     }
 
-    @PostMapping("/contacts")
+    @PostMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = CREATED, description = "Add a contact to user's list of email contacts",
                     content = @Content(mediaType = CONTENT_TYPE,
@@ -52,7 +53,7 @@ public class ContactController {
         }
     }
 
-    @DeleteMapping("/contacts")
+    @DeleteMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Remove a contact to user's list of email contacts",
                     content = @Content(mediaType = CONTENT_TYPE,
