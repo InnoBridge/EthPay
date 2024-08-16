@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
@@ -55,7 +52,7 @@ public class ContactController {
         }
     }
 
-    @PutMapping("/contacts")
+    @DeleteMapping("/contacts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Remove a contact to user's list of email contacts",
                     content = @Content(mediaType = CONTENT_TYPE,
