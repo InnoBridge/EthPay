@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import static com.innobridge.ethpay.Utility.getAuthentication;
+import static com.innobridge.ethpay.util.Utility.getAuthentication;
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
 
 @RestController

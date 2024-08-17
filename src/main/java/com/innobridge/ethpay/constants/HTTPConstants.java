@@ -21,7 +21,7 @@ public class HTTPConstants {
 
     public static final String EXCHANGE_URL = "/exchange";
     public static final String ACCOUNT_URL = "/account";
-
+    public static final String TRANSACTION_URL = "/transaction";
 
     public static final String ACCESS_TOKEN = "access-token";
 
