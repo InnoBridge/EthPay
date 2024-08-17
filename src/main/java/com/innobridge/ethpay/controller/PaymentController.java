@@ -23,6 +23,20 @@ public class PaymentController {
     @Autowired
     private TransactionService transactionService;
 
+    @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Retrieve transaction by ID",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> getTransactionById(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(transactionService.getTransactionById(getAuthentication().getId(), id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @GetMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Retrieve user's transactions",
@@ -37,17 +51,47 @@ public class PaymentController {
         }
     }
 
+    @GetMapping("/sender")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Retrieve senders's transactions",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> getSenderTransactions(@RequestParam(required = false) TransactionStatus status,
+                                                   @RequestParam(required = false) Currency currency){
+        try {
+            return ResponseEntity.ok(transactionService.getSenderTransactions(getAuthentication().getId(), status, currency));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/receiver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Retrieve receiver's transactions",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> getReceiverTransactions(@RequestParam(required = false) TransactionStatus status,
+                                                     @RequestParam(required = false) Currency currency){
+        try {
+            return ResponseEntity.ok(transactionService.getReceiverTransactions(getAuthentication().getId(), status, currency));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/create")
     @ApiResponses(value = {
             @ApiResponse(responseCode = CREATED, description = "Make Payment",
                     content = @Content(mediaType = CONTENT_TYPE,
-                            schema = @Schema(implementation = Transaction.class)))
+                            schema = @Schema(implementation = TransactionResponse.class)))
     })
     public ResponseEntity<?> makePayment(
             @RequestParam String receiverEmail,
             @RequestParam Currency sourceCurrency,
             @RequestParam Currency targetCurrency,
-            @RequestParam(required = false) Crypto substrateCrypto,
+            @RequestParam Crypto substrateCrypto,
             @RequestParam double targetAmount,
             @RequestParam(required = false) String message) {
         try {
