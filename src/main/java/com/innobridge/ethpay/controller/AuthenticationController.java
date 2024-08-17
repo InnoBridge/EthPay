@@ -1,6 +1,7 @@
 package com.innobridge.ethpay.controller;
 
 import com.innobridge.ethpay.model.*;
+import com.innobridge.ethpay.model.Constants.Currency;
 import com.innobridge.ethpay.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequestMapping("/auth")
 @RestController
@@ -40,7 +44,12 @@ public class AuthenticationController {
                     .body("Error: Email is already in use!");
         }
 
-        // Create new user
+        Map<Currency, BigDecimal> balance = new HashMap<>();
+        balance.put(Currency.USD, new BigDecimal(10000.00));
+        balance.put(Currency.CAD, new BigDecimal(10000.00));
+        balance.put(Currency.JPY, new BigDecimal(15000.00));
+        balance.put(Currency.BTC, new BigDecimal(0.5));
+
         User user = new User();
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
@@ -50,6 +59,7 @@ public class AuthenticationController {
         user.setAccountNonLocked(true);
         user.setCredentialsNonExpired(true);
         user.setEnabled(true);
+        user.setBalance(balance);
 
         User savedUser = userService.saveUser(user);
 

@@ -24,7 +24,8 @@ public class SecurityConfig {
           "/auth/signup",            // Signup endpoint
 //          "/auth/signin",            // Signin endpoint
       "/oauth2/**", // OAuth2 endpoints
-      "/payment"
+      "/create-payment",
+      "/update-payment"
   };
 
   @Bean

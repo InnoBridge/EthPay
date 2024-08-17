@@ -6,7 +6,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
+import com.innobridge.ethpay.model.Constants.Currency;
+
+import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 
 @Document(collection = "users")
@@ -23,6 +26,7 @@ public class User implements UserDetails {
     private boolean accountNonLocked;
     private boolean credentialsNonExpired;
     private boolean enabled;
+    private Map<Currency, BigDecimal> balance;
 
     @Override
     public Set<GrantedAuthority> getAuthorities() {
