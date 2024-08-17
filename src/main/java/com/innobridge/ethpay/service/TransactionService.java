@@ -107,11 +107,12 @@ public class TransactionService {
         accountService.withdraw(senderId, transaction.sourceCurrency, transaction.sourceAmount);
         accountService.deposit(transaction.getReceiverId(), transaction.targetCurrency, transaction.targetAmount);
 
-        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
-
         transaction.setStatus(TransactionStatus.FILLED);
         transaction.setCompletedDate(new Date(System.currentTimeMillis()));
-        return transactionRepository.save(transaction);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
+        return savedTransaction;
     }
 
     public Transaction rejectSenderTransaction(String transactionId, String senderId, String message) {
@@ -120,10 +121,13 @@ public class TransactionService {
         if (!transaction.getSenderId().equals(senderId)) {
             throw new IllegalArgumentException("Invalid Transaction for sender " + senderId);
         }
-        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
         transaction.setStatus(TransactionStatus.CANCELLED);
         transaction.setCompletedDate(new Date(System.currentTimeMillis()));
-        return transactionRepository.save(transaction);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
+        return savedTransaction;
     }
 
     public Transaction rejectReceiverTransaction(String transactionId, String receiverId, String message) {
@@ -133,10 +137,13 @@ public class TransactionService {
         if (!transaction.getReceiverId().equals(receiverId)) {
             throw new IllegalArgumentException("Invalid Transaction for receiver " + receiverId);
         }
-        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
         transaction.setStatus(TransactionStatus.CANCELLED);
         transaction.setCompletedDate(new Date(System.currentTimeMillis()));
-        return transactionRepository.save(transaction);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
+        return savedTransaction;
     }
 
 }
