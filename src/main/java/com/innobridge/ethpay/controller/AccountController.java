@@ -82,4 +82,18 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PostMapping("/autoAccept")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = CREATED, description = "Set Auto Accept",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = Account.class)))
+    })
+    public ResponseEntity<?> setAutoAccept(@RequestParam boolean autoAccept) {
+        try {
+            return ResponseEntity.ok(accountService.setAutoAccept(getAuthentication().getId(), autoAccept));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

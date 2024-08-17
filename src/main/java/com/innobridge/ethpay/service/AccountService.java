@@ -63,4 +63,10 @@ public class AccountService {
         }
         return accountRepository.save(account);
     }
+
+    public Account setAutoAccept(String userId, boolean autoAccept) {
+        Account account = getAccount(userId);
+        account.setAutoAccept(autoAccept);
+        return accountRepository.save(account);
+    }
 }
