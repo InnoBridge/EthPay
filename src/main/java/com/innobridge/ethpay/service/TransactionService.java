@@ -1,14 +1,15 @@
 package com.innobridge.ethpay.service;
 
 import com.innobridge.ethpay.model.*;
+import com.innobridge.ethpay.model.Currency;
 import com.innobridge.ethpay.repository.TransactionRepository;
 import com.innobridge.ethpay.util.CurrencyConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -21,6 +22,29 @@ public class TransactionService {
     private ExchangeService exchangeService;
     @Autowired
     private AccountService accountService;
+
+    public List<TransactionResponse> getTransactions(String userId, TransactionStatus status) {
+        List<TransactionStatus> statuses = status == null
+                ? List.of(TransactionStatus.PENDING, TransactionStatus.FILLED, TransactionStatus.CANCELLED)
+                : List.of(status);
+
+        List<Transaction> transactions = transactionRepository.findBySenderIdOrReceiverIdAndStatusIn(userId, statuses);
+
+        Set<String> userIds = transactions.stream()
+                .map(transaction -> transaction.getSenderId().equals(userId) ? transaction.getReceiverId() : transaction.getSenderId())
+                .collect(Collectors.toSet());
+        userIds.add(userId);
+        List<User> users = userService.getUsersByIds(new ArrayList<>(userIds));
+        Map<String, String> userIdEmailMap = users.stream()
+                .collect(Collectors.toMap(User::getId, User::getEmail));
+
+        return transactions.stream()
+                .map(transaction ->
+                    transaction.toTransactionResponse(
+                            userIdEmailMap.get(transaction.getSenderId()),
+                            userIdEmailMap.get(transaction.getReceiverId())))
+                .toList();
+    }
 
     public Transaction createTransaction(String senderId,
                                          String receiverEmail,

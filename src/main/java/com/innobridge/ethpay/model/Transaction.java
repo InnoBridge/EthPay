@@ -53,4 +53,21 @@ public class Transaction {
         this.status = status;
         this.description = description;
     }
+
+    public TransactionResponse toTransactionResponse(String senderEmail, String receiverEmail) {
+        return TransactionResponse.builder()
+                .id(this.id)
+                .senderEmail(senderEmail)
+                .receiverEmail(receiverEmail)
+                .sourceCurrency(this.sourceCurrency)
+                .sourceAmount(this.sourceAmount)
+                .targetCurrency(this.targetCurrency)
+                .targetAmount(this.targetAmount)
+                .substrateCrypto(this.substrateCrypto)
+                .createdDate(this.createdDate)
+                .completedDate(this.completedDate)
+                .status(this.status)
+                .description(this.description)
+                .build();
+    }
 }
