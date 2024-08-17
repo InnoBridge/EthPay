@@ -1,5 +1,6 @@
 package com.innobridge.ethpay.model;
 
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
+@Builder
 @Document(collection = "transactions")
 public class Transaction {
     @Id
@@ -25,4 +27,30 @@ public class Transaction {
     public Date completedDate;
     public TransactionStatus status;
     public String description;
+
+    public Transaction(String id,
+                       String senderId,
+                       String receiverId,
+                       Currency sourceCurrency,
+                       BigDecimal sourceAmount,
+                       Currency targetCurrency,
+                       BigDecimal targetAmount,
+                       Crypto substrateCrypto,
+                       Date createdDate,
+                       Date completedDate,
+                       TransactionStatus status,
+                       String description) {
+        this.id = id;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.sourceCurrency = sourceCurrency;
+        this.sourceAmount = sourceAmount;
+        this.targetCurrency = targetCurrency;
+        this.targetAmount = targetAmount;
+        this.substrateCrypto = substrateCrypto;
+        this.createdDate = createdDate;
+        this.completedDate = completedDate;
+        this.status = status;
+        this.description = description;
+    }
 }

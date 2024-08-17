@@ -1,4 +1,4 @@
-package com.innobridge.ethpay;
+package com.innobridge.ethpay.util;
 
 import com.innobridge.ethpay.model.UsernameEmailPasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

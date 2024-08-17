@@ -1,21 +1,25 @@
 package com.innobridge.ethpay.service;
 
-import com.innobridge.ethpay.model.Account;
-import com.innobridge.ethpay.model.Balance;
-import com.innobridge.ethpay.model.Currency;
+import com.innobridge.ethpay.model.*;
 import com.innobridge.ethpay.repository.AccountRepository;
+import com.innobridge.ethpay.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     public Account getAccount(String userId) {
         return accountRepository.findByUserId(userId)
@@ -68,5 +72,26 @@ public class AccountService {
         Account account = getAccount(userId);
         account.setAutoAccept(autoAccept);
         return accountRepository.save(account);
+    }
+
+    public Account updatePendingTransaction(String userId, Currency currency) {
+        List<Transaction> pendingTransactions = getSenderTransactions(
+                userId,
+                currency);
+
+        Map<String, BigDecimal> pendingTransactionMap = pendingTransactions
+                .stream()
+                .map(transaction -> Map.entry(transaction.getId(), transaction.getSourceAmount()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        Account account = getAccount(userId);
+
+        account.getBalances().get(currency).setPendingTransactions(pendingTransactionMap);
+
+        return accountRepository.save(account);
+    }
+
+    private List<Transaction> getSenderTransactions(String senderId, Currency sourceCurrency) {
+        return transactionRepository.findBySenderIdAndStatusAndSourceCurrency(senderId, TransactionStatus.PENDING, sourceCurrency);
     }
 }
