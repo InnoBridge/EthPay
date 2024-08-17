@@ -2,6 +2,7 @@ package com.innobridge.ethpay.controller;
 
 import com.innobridge.ethpay.model.*;
 import com.innobridge.ethpay.service.AccountService;
+import com.innobridge.ethpay.service.TransactionService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.innobridge.ethpay.util.Utility.getAuthentication;
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
@@ -24,6 +28,9 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    @Autowired
+    private TransactionService transactionService;
+
     @GetMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Retrieve user's account",
@@ -33,6 +40,8 @@ public class AccountController {
     public ResponseEntity<?> getAccount() {
 
         try {
+            Account account = accountService.getAccount(getAuthentication().getId());
+
             return ResponseEntity.ok(accountService.getAccount(getAuthentication().getId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -93,5 +102,16 @@ public class AccountController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    private AccountResponse convertAccountToAccountResponse(Account account) {
+        Map<String, TransactionResponse> pendingTransactions = transactionService
+                .getTransactions(account.getUserId(), TransactionStatus.PENDING)
+                .stream()
+                .collect(Collectors.toMap(TransactionResponse::getId, transactionResponse -> transactionResponse));
+
+
+
+
     }
 }

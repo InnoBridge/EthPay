@@ -20,4 +20,13 @@ public class Balance {
         pendingTransactions.values().stream().forEach(availableFund::subtract);
         return availableFund;
     }
+
+    public BalanceResponse toBalanceResponse(Map<String, TransactionResponse> transactionResponseMap) {
+        return new BalanceResponse(
+                currency,
+                balance,
+                pendingTransactions.keySet().stream()
+                        .map(transactionResponseMap::get)
+                        .toList());
+    }
 }
