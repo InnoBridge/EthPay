@@ -1,5 +1,8 @@
 package com.innobridge.ethpay.model;
 
+import lombok.Getter;
+
+@Getter
 public enum Currency {
     USD("USD"),
     EUR("EUR"),
