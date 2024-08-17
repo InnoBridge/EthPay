@@ -1,6 +1,5 @@
 package com.innobridge.ethpay.controller;
 
-import com.innobridge.ethpay.model.Account;
 import com.innobridge.ethpay.model.Crypto;
 import com.innobridge.ethpay.model.Currency;
 import com.innobridge.ethpay.model.Transaction;
@@ -54,6 +53,45 @@ public class PaymentController {
                             message
                     )
             );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/accept")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Accept Transaction",
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
+    })
+    public ResponseEntity<?> acceptTransaction(@RequestParam String transactionId) {
+        try {
+            return ResponseEntity.ok(transactionService.acceptTransaction(transactionId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reject/sender")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Reject Transaction",
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
+    })
+    public ResponseEntity<?> rejectSenderTransaction(@RequestParam String transactionId, @RequestParam String message) {
+        try {
+            return ResponseEntity.ok(transactionService.rejectSenderTransaction(transactionId, message));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reject/receiver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Reject Transaction",
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
+    })
+    public ResponseEntity<?> rejectReceiverTransaction(@RequestParam String transactionId, @RequestParam String message) {
+        try {
+            return ResponseEntity.ok(transactionService.rejectReceiverTransaction(transactionId, message));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

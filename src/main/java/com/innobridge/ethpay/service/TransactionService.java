@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class TransactionService {
@@ -94,5 +93,35 @@ public class TransactionService {
         return savedTransaction;
     }
 
+    public Transaction acceptTransaction(String transactionId) {
+        // TODO Auto-generated method stub
+        // Get transaction
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
+        transaction.setStatus(TransactionStatus.FILLED);
+        transaction.setCompletedDate(new Date(System.currentTimeMillis()));
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction rejectSenderTransaction(String transactionId, String message) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+        transaction.setStatus(TransactionStatus.CANCELLED);
+        transaction.setCompletedDate(new Date(System.currentTimeMillis()));
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction rejectReceiverTransaction(String transactionId, String message) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+        transaction.setStatus(TransactionStatus.CANCELLED);
+        transaction.setCompletedDate(new Date(System.currentTimeMillis()));
+        return transactionRepository.save(transaction);
+    }
 
 }
