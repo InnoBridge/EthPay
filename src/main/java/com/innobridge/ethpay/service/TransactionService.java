@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class TransactionService {
@@ -94,5 +93,57 @@ public class TransactionService {
         return savedTransaction;
     }
 
+    public Transaction acceptTransaction(String transactionId, String senderId) {
+        // TODO Auto-generated method stub
+        // Get transaction
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+
+        if (!transaction.getSenderId().equals(senderId)) {
+            throw new IllegalArgumentException("Invalid Transaction for sender " + senderId);
+        }
+
+        // perform withdraw from the sender account
+        accountService.withdraw(senderId, transaction.sourceCurrency, transaction.sourceAmount);
+        accountService.deposit(transaction.getReceiverId(), transaction.targetCurrency, transaction.targetAmount);
+
+        transaction.setStatus(TransactionStatus.FILLED);
+        transaction.setCompletedDate(new Date(System.currentTimeMillis()));
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
+        return savedTransaction;
+    }
+
+    public Transaction rejectSenderTransaction(String transactionId, String senderId, String message) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+        if (!transaction.getSenderId().equals(senderId)) {
+            throw new IllegalArgumentException("Invalid Transaction for sender " + senderId);
+        }
+
+        transaction.setStatus(TransactionStatus.CANCELLED);
+        transaction.setCompletedDate(new Date(System.currentTimeMillis()));
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
+        return savedTransaction;
+    }
+
+    public Transaction rejectReceiverTransaction(String transactionId, String receiverId, String message) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
+
+        if (!transaction.getReceiverId().equals(receiverId)) {
+            throw new IllegalArgumentException("Invalid Transaction for receiver " + receiverId);
+        }
+
+        transaction.setStatus(TransactionStatus.CANCELLED);
+        transaction.setCompletedDate(new Date(System.currentTimeMillis()));
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        accountService.updatePendingTransaction(transaction.senderId, transaction.sourceCurrency);
+
+        return savedTransaction;
+    }
 
 }
