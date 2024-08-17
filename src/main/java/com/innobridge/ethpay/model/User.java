@@ -6,8 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.innobridge.ethpay.model.Constants.Currency;
-
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +18,8 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
-    private Set<String> refreshToken;
+    private String accessToken;
+    private String refreshToken;
     private Set<GrantedAuthority> authorities;
     private boolean accountNonExpired;
     private boolean accountNonLocked;

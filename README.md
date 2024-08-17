@@ -18,7 +18,9 @@ cp .env.example .env
 ```
 In the .env file fill in the following environment variables
 ```text
-MONGO_DATABASE_URI=<Your MongoDB URI>
+export MONGO_DATABASE_URI=<Your MongoDB URI>
+export JWT_ACCESS_SECRET_KEY=<Your JWT Access Secret Key>
+export JWT_REFRESH_SECRET_KEY=<Your JWT Refresh Secret Key>
 ```
 
 ### Running Docker Compose
@@ -64,7 +66,11 @@ Then in Intellij Idea
 
 ## Deploy to Render
 ### Setting up Environment Variables
-Go to your Java application on https://dashboard.render.com/ , in Environment. Add the Environmental Variable, with the key MONGO_DATABASE_URI.
+Go to your Java application on https://dashboard.render.com/ , in Environment. 
+Add the Environmental Variable, 
+- MONGO_DATABASE_URI: <Your MongoDB URI>
+- JWT_ACCESS_SECRET_KEY: <Your JWT Access Secret Key>
+- JWT_REFRESH_SECRET_KEY: <Your JWT Refresh Secret Key>
 ![alt text](./images/RenderEnvVariables.png)
 
 ### Whitelist Application’s IP Address
@@ -81,3 +87,62 @@ After the deployment has completed you can execute your api on
 ```text
 https://<application url>/swagger-ui/index.html.
 ```
+
+# Usage
+You can access the OpenAPI UI for calling the endpoints by going to `http://<base-url>/swagger-ui/index.html` in your browser.
+## POST `/auth/signup`
+This api is used to register a new user. The request body should contain the following fields:
+```json
+{
+  "username": "username",
+  "email": "email",
+  "password": "password"
+}
+```
+The uri is whitelisted, you don't need to provide any authentication token or credential to register the user.
+
+## POST `/auth/signin`
+This api is used to login a user. The use will need to provide
+- a username or email
+- a password
+```json
+{
+  "username": <string>, 
+   "email": <string>,
+  "password": <string>
+}
+```
+When the user has successfully logged in, an access and refresh token will be generated and stored server side.
+The access token will be returned in the response body:
+```json
+{
+  "accessToken": <string>,
+  "expiresIn": <number>
+}
+```
+A refresh token will also be returned as an httpOnly cookie with the name `refresh-token`.
+This is because the refresh token is longer lived than the access token and has stricter security requirements.
+Because the refresh token can be used to generate a new access token, it is important to keep it secure.
+Returning the refresh token in the response body is not a security risk because it can be stolen through 
+cross-site scripting attacks.
+
+## POST `/auth/refresh`
+This api is used to refresh the access token. The user will need to provide the refresh token in the httpOnly cookie named `refresh-token`.
+Once authenticated using the refresh token a response with the access token will be returned.
+```json
+{
+   "accessToken": <string>,
+   "expiresIn": <number>
+}
+```
+The access old access token in storage will be replaced by the new access token.
+
+## POST `/auth/signout`
+This api is used to logout the user. The user will need to provide the refresh token in the httpOnly cookie named `refresh-token`.
+Once authenticated using the refresh token, the refresh and access token will be deleted from storage. And the refresh token in the 
+user's browser will be deleted.
+
+## Add access token to the request header
+On OpenAPI UI, click on the Authorize button and add the access token.
+![alt text](./images/OpenAPI-Add-AccessToken.png)
+![alt text](./images/OpenAPI-Set-AccessToken.png)

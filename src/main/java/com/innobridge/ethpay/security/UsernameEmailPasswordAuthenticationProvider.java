@@ -1,14 +1,13 @@
 package com.innobridge.ethpay.security;
 
+import com.innobridge.ethpay.model.User;
 import com.innobridge.ethpay.model.UsernameEmailPasswordAuthenticationToken;
 import com.innobridge.ethpay.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +20,10 @@ public class UsernameEmailPasswordAuthenticationProvider implements Authenticati
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * If username and password are provided will check if the user and password are valid
+     * If email and password are provided will check if the email and password are valid
+     */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         UsernameEmailPasswordAuthenticationToken authRequest = (UsernameEmailPasswordAuthenticationToken) authentication;
@@ -28,7 +31,7 @@ public class UsernameEmailPasswordAuthenticationProvider implements Authenticati
         String credentials = (String) authRequest.getCredentials();
         boolean withUsername = authRequest.isWithUsername();
 
-        UserDetails user;
+        User user;
 
         if (withUsername) {
             user = userService.getByUsername(principal).orElseThrow(
@@ -41,10 +44,15 @@ public class UsernameEmailPasswordAuthenticationProvider implements Authenticati
         if (!passwordEncoder.matches(credentials, user.getPassword())) {
             throw new AuthenticationServiceException("Invalid username/email or password");
         }
-
-        return new UsernameEmailPasswordAuthenticationToken(user, credentials, withUsername, user.getAuthorities());
+        return new UsernameEmailPasswordAuthenticationToken(user.getId(), user.getUsername(), user.getAuthorities());
     }
 
+    /**
+     * The AuthenticationManager will choose which AuthenticationProvider to use based if the provider supports the
+     * implementation of the Authentication token.
+     * In this case, the UsernameEmailPasswordAuthenticationToken is supported. And the AuthorizationManager will
+     * use this provider to authenticate the user.
+     */
     @Override
     public boolean supports(Class<?> authentication) {
         return UsernameEmailPasswordAuthenticationToken.class.isAssignableFrom(authentication);
