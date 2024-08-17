@@ -63,9 +63,9 @@ public class PaymentController {
             @ApiResponse(responseCode = OK, description = "Accept Transaction",
                     content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
     })
-    public ResponseEntity<?> acceptTransaction(@RequestParam String transactionId) {
+    public ResponseEntity<?> acceptTransaction(@RequestParam String transactionId, @RequestParam String senderId) {
         try {
-            return ResponseEntity.ok(transactionService.acceptTransaction(transactionId));
+            return ResponseEntity.ok(transactionService.acceptTransaction(transactionId, senderId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -76,9 +76,10 @@ public class PaymentController {
             @ApiResponse(responseCode = OK, description = "Reject Transaction",
                     content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
     })
-    public ResponseEntity<?> rejectSenderTransaction(@RequestParam String transactionId, @RequestParam String message) {
+    public ResponseEntity<?> rejectSenderTransaction(@RequestParam String transactionId, @RequestParam String senderId,
+            @RequestParam String message) {
         try {
-            return ResponseEntity.ok(transactionService.rejectSenderTransaction(transactionId, message));
+            return ResponseEntity.ok(transactionService.rejectSenderTransaction(transactionId, senderId, message));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -89,9 +90,10 @@ public class PaymentController {
             @ApiResponse(responseCode = OK, description = "Reject Transaction",
                     content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
     })
-    public ResponseEntity<?> rejectReceiverTransaction(@RequestParam String transactionId, @RequestParam String message) {
+    public ResponseEntity<?> rejectReceiverTransaction(@RequestParam String transactionId,
+            @RequestParam String receiverId, @RequestParam String message) {
         try {
-            return ResponseEntity.ok(transactionService.rejectReceiverTransaction(transactionId, message));
+            return ResponseEntity.ok(transactionService.rejectReceiverTransaction(transactionId, receiverId, message));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
