@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import static com.innobridge.ethpay.Utility.getAuthentication;
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
 
 @RestController
@@ -29,7 +30,7 @@ public class ContactController {
     })
     public ResponseEntity<?> getContacts() {
         try {
-            return ResponseEntity.ok(contactService.getByEmail());
+            return ResponseEntity.ok(contactService.getById(getAuthentication().getId()));
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         } catch (Exception e) {
@@ -45,7 +46,7 @@ public class ContactController {
     })
     public ResponseEntity<?> addContact(String email) {
         try {
-            return ResponseEntity.ok(contactService.addContact(email));
+            return ResponseEntity.ok(contactService.addContact(getAuthentication().getId(), email));
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         } catch (Exception e) {
@@ -61,7 +62,7 @@ public class ContactController {
     })
     public ResponseEntity<?> removeContact(String email) {
         try {
-            return ResponseEntity.ok(contactService.removeContact(email));
+            return ResponseEntity.ok(contactService.removeContact(getAuthentication().getId(), email));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(e.hashCode()).body(e.getMessage());
         } catch (Exception e) {

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 
-import static com.innobridge.ethpay.Utility.getAuthentication;
-
 @Service
 public class ContactService {
 
@@ -19,22 +17,22 @@ public class ContactService {
     @Autowired
     private UserService userService;
 
-    public Contacts getByEmail() {
-        User user = userService.getById(getAuthentication().getId()).get();
+    public Contacts getById(String id) {
+        User user = userService.getById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
         return contactRepository.findByEmail(user.getEmail()).orElseGet(() -> new Contacts(user.getEmail(), new HashSet<>()));
     }
 
-    public Contacts addContact(String email) {
+    public Contacts addContact(String id, String email) {
         User user = userService.getByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Contacts contacts = getByEmail();
+        Contacts contacts = getById(id);
         contacts.getContacts().add(user.getEmail());
         contactRepository.save(contacts);
         return contacts;
     }
 
-    public Contacts removeContact(String email) {
+    public Contacts removeContact(String id, String email) {
         User user = userService.getByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Contacts contacts = getByEmail();
+        Contacts contacts = getById(id);
         contacts.getContacts().remove(user.getEmail());
         contactRepository.save(contacts);
         return contacts;
