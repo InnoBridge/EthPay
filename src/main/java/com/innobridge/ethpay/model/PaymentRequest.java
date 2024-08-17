@@ -2,8 +2,6 @@ package com.innobridge.ethpay.model;
 
 import java.math.BigDecimal;
 
-import com.innobridge.ethpay.model.Constants.Currency;
-
 import lombok.Data;
 
 @Data
