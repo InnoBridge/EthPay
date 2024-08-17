@@ -83,7 +83,7 @@ public class AccountController {
         }
     }
 
-    @PostMapping("/autoAccept")
+    @PostMapping("/autoaccept")
     @ApiResponses(value = {
             @ApiResponse(responseCode = CREATED, description = "Set Auto Accept",
                     content = @Content(mediaType = CONTENT_TYPE,
