@@ -18,8 +18,8 @@ import static com.innobridge.ethpay.model.TokenType.REFRESH_TOKEN;
 
 @Component
 public class JwtUtils {
-    public static final ExpirationTime ACCESS_TOKEN_EXPIRATION_TIME = new ExpirationTime(0, 5, 1, 0);
-    public static final ExpirationTime REFRESH_TOKEN_EXPIRATION_TIME = new ExpirationTime(5, 5, 5, 0);
+    public static final ExpirationTime ACCESS_TOKEN_EXPIRATION_TIME = new ExpirationTime(5, 5, 1, 0);
+    public static final ExpirationTime REFRESH_TOKEN_EXPIRATION_TIME = new ExpirationTime(30, 5, 5, 0);
     public static final String TOKEN_TYPE = "token_type";
     private final SecretKey accessSigningKey;
     private final SecretKey refreshSigningKey;
