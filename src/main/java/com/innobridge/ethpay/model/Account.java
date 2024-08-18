@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -24,4 +26,17 @@ public class Account {
     @CreatedDate
     private Date createdDate;
     private boolean autoAccept;
+
+    public AccountResponse toAccountResponse(Map<String, TransactionResponse> transactionResponseMap) {
+        Map<Currency, BalanceResponse> balanceResponseMap = new HashMap<>();
+        balances.forEach(
+                (currency, balance) -> balanceResponseMap.put(currency, balance.toBalanceResponse(transactionResponseMap))
+        );
+        return new AccountResponse(
+                id,
+                userId,
+                balanceResponseMap,
+                createdDate,
+                autoAccept);
+    }
 }

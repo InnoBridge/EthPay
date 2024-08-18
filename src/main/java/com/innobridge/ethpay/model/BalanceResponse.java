@@ -13,5 +13,6 @@ import java.util.Map;
 public class BalanceResponse {
     private Currency currency;
     private BigDecimal balance;
+    private BigDecimal availableFund;
     private List<TransactionResponse> pendingTransactions;
 }
