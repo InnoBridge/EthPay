@@ -91,7 +91,7 @@ public class PaymentController {
             @RequestParam String receiverEmail,
             @RequestParam Currency sourceCurrency,
             @RequestParam Currency targetCurrency,
-            @RequestParam Crypto substrateCrypto,
+            @RequestParam(required = false) Crypto substrateCrypto,
             @RequestParam double targetAmount,
             @RequestParam(required = false) String message) {
         try {
@@ -106,6 +106,45 @@ public class PaymentController {
                             message
                     )
             );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/accept")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Accept Transaction",
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> acceptTransaction(@RequestParam String transactionId) {
+        try {
+            return ResponseEntity.ok(transactionService.acceptTransaction(transactionId, getAuthentication().getId()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reject/sender")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Reject Transaction",
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> rejectSenderTransaction(@RequestParam String transactionId, @RequestParam String message) {
+        try {
+            return ResponseEntity.ok(transactionService.rejectSenderTransaction(transactionId, getAuthentication().getId(), message));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reject/receiver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Reject Transaction",
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> rejectReceiverTransaction(@RequestParam String transactionId, @RequestParam String message) {
+        try {
+            return ResponseEntity.ok(transactionService.rejectReceiverTransaction(transactionId, getAuthentication().getId(), message));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
