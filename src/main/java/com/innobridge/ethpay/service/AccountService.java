@@ -34,7 +34,7 @@ public class AccountService {
                             throw new IllegalArgumentException("Account already exists.");
                 } , () -> {
                             newAccount.setUserId(userId);
-                            newAccount.setAutoAccept(false);
+                            newAccount.setAutoAccept(true);
                             newAccount.setCreatedDate(new Date(System.currentTimeMillis()));
                             newAccount.setBalances(Map.of());
                             accountRepository.save(newAccount);
