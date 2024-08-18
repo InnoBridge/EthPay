@@ -1,8 +1,6 @@
 package com.innobridge.ethpay.controller;
 
-import com.innobridge.ethpay.model.Crypto;
-import com.innobridge.ethpay.model.Currency;
-import com.innobridge.ethpay.model.Transaction;
+import com.innobridge.ethpay.model.*;
 import com.innobridge.ethpay.service.TransactionService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,10 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
@@ -28,11 +23,69 @@ public class PaymentController {
     @Autowired
     private TransactionService transactionService;
 
+    @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Retrieve transaction by ID",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> getTransactionById(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(transactionService.getTransactionById(getAuthentication().getId(), id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Retrieve user's transactions",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> getTransactions(@RequestParam(required = false) TransactionStatus status) {
+        try {
+            return ResponseEntity.ok(transactionService.getTransactions(getAuthentication().getId(), status));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/sender")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Retrieve senders's transactions",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> getSenderTransactions(@RequestParam(required = false) TransactionStatus status,
+                                                   @RequestParam(required = false) Currency currency){
+        try {
+            return ResponseEntity.ok(transactionService.getSenderTransactions(getAuthentication().getId(), status, currency));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/receiver")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = OK, description = "Retrieve receiver's transactions",
+                    content = @Content(mediaType = CONTENT_TYPE,
+                            schema = @Schema(implementation = TransactionResponse.class)))
+    })
+    public ResponseEntity<?> getReceiverTransactions(@RequestParam(required = false) TransactionStatus status,
+                                                     @RequestParam(required = false) Currency currency){
+        try {
+            return ResponseEntity.ok(transactionService.getReceiverTransactions(getAuthentication().getId(), status, currency));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/create")
     @ApiResponses(value = {
             @ApiResponse(responseCode = CREATED, description = "Make Payment",
                     content = @Content(mediaType = CONTENT_TYPE,
-                            schema = @Schema(implementation = Transaction.class)))
+                            schema = @Schema(implementation = TransactionResponse.class)))
     })
     public ResponseEntity<?> makePayment(
             @RequestParam String receiverEmail,
@@ -61,7 +114,7 @@ public class PaymentController {
     @PostMapping("/accept")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Accept Transaction",
-                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = TransactionResponse.class)))
     })
     public ResponseEntity<?> acceptTransaction(@RequestParam String transactionId) {
         try {
@@ -74,7 +127,7 @@ public class PaymentController {
     @PostMapping("/reject/sender")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Reject Transaction",
-                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = TransactionResponse.class)))
     })
     public ResponseEntity<?> rejectSenderTransaction(@RequestParam String transactionId, @RequestParam String message) {
         try {
@@ -87,7 +140,7 @@ public class PaymentController {
     @PostMapping("/reject/receiver")
     @ApiResponses(value = {
             @ApiResponse(responseCode = OK, description = "Reject Transaction",
-                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = Transaction.class)))
+                    content = @Content(mediaType = CONTENT_TYPE, schema = @Schema(implementation = TransactionResponse.class)))
     })
     public ResponseEntity<?> rejectReceiverTransaction(@RequestParam String transactionId, @RequestParam String message) {
         try {
