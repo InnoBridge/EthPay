@@ -52,7 +52,9 @@ public class AccountService {
         } else {
             balances.put(currency, new Balance(currency, amount, Map.of()));
         }
-        return accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
+        updatePendingTransaction(userId, currency);
+        return savedAccount;
     }
 
     public Account withdraw(String userId, Currency currency, BigDecimal amount) {
@@ -65,7 +67,9 @@ public class AccountService {
         } else {
             throw new IllegalArgumentException("Insufficient funds.");
         }
-        return accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
+        updatePendingTransaction(userId, currency);
+        return savedAccount;
     }
 
     public Account setAutoAccept(String userId, boolean autoAccept) {
