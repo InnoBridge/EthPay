@@ -16,11 +16,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
 import static com.innobridge.ethpay.constants.HTTPConstants.OAUTH2_URL;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +39,8 @@ public class SecurityConfig {
           API_DOCS_URL,
           API_DOCS_ALL_URL,
           SIGNUP_URL,
-          OAUTH2_URL
+          OAUTH2_URL,
+          "/oauth2/authorization/google"
   };
 
   @Bean
@@ -69,7 +75,27 @@ public class SecurityConfig {
     return new JwtAuthenticationFilter(jwtUtils);
   }
 
-  @Bean
+  public ClientRegistrationRepository clientRegistrationRepository() {
+    ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("google")
+            .clientId("google-client-id")
+            .clientSecret("google-client-secret")
+            .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .redirectUriTemplate("/login/oauth2/code/{registrationId}")
+            .scope("openid", "profile", "email", "address", "phone")
+            .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+            .tokenUri("https://www.googleapis.com/oauth2/v4/token")
+            .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+            .userNameAttributeName(IdTokenClaimNames.SUB)
+            .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+            .clientName("Google")
+            .build();
+
+    return new InMemoryClientRegistrationRepository(clientRegistration);
+
+  }
+
+    @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                  JwtAuthenticationFilter jwtAuthenticationFilter,
                                                  UsernameEmailPasswordAuthenticationFilter usernameEmailPasswordAuthenticationFilter) throws Exception {
@@ -83,6 +109,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless session management
             )
+            .oauth2Login(withDefaults())
             .authenticationProvider(authenticationProvider())  // Register custom authentication provider
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAt(usernameEmailPasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
