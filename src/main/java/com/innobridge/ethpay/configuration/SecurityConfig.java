@@ -28,6 +28,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
 import static com.innobridge.ethpay.constants.HTTPConstants.OAUTH2_URL;
+import static org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE;
+import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 
 @Configuration
 @EnableWebSecurity
@@ -42,8 +44,8 @@ public class SecurityConfig {
           API_DOCS_ALL_URL,
           SIGNUP_URL,
           OAUTH2_URL,
-          "/oauth2/authorization/google",
-          "/login/oauth2/code/google",
+//          "/oauth2/authorization/google",
+//          "/login/oauth2/code/google",
           "/oauth2/**"
   };
 
@@ -100,8 +102,8 @@ public class SecurityConfig {
     ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("google")
             .clientId(googleClientId)
             .clientSecret(googleClientSecret)
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
+            .authorizationGrantType(AUTHORIZATION_CODE)
             .redirectUri(baseRedirectUri + "/login/oauth2/code/google")
             .scope("openid", "profile", "email")
             .authorizationUri("https://accounts.google.com/o/oauth2/auth")
@@ -145,7 +147,7 @@ public class SecurityConfig {
                             .failureUrl("/")// Redirect to this URL after successful login
             )
             .authenticationProvider(authenticationProvider())  // Register custom authentication provider
-//            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAt(usernameEmailPasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
