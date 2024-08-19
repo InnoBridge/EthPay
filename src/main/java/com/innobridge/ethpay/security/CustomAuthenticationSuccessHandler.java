@@ -25,7 +25,7 @@ import static com.innobridge.ethpay.security.JwtUtils.REFRESH_TOKEN_EXPIRATION_T
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Value("${OAUTH2_REDIRECT_BASE_URI}")
     private String baseRedirectUri;
-    private String redirectUri = baseRedirectUri + "/oauth2/success";
+    private String redirectUri;
     @Autowired
     UserService userService;
     @Autowired
@@ -33,6 +33,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+        this.redirectUri = baseRedirectUri + "/oauth2/success";
         handle(request, response, authentication);
         super.clearAuthenticationAttributes(request);
     }
