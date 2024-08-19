@@ -35,7 +35,8 @@ public class HTTPConstants {
             API_DOCS_URL,
             API_DOCS_ALL_URL,
             SIGNUP_URL,
-            OAUTH2_URLS
+            OAUTH2_URLS,
+            "/login/oauth2/**"
     };
 
     // Define your matcher to identify OAuth2-related requests
