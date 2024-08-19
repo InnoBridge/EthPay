@@ -1,9 +1,6 @@
 package com.innobridge.ethpay.configuration;
 
-import com.innobridge.ethpay.security.JwtAuthenticationFilter;
-import com.innobridge.ethpay.security.JwtUtils;
-import com.innobridge.ethpay.security.UsernameEmailPasswordAuthenticationFilter;
-import com.innobridge.ethpay.security.UsernameEmailPasswordAuthenticationProvider;
+import com.innobridge.ethpay.security.*;
 import com.innobridge.ethpay.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,26 +13,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
-import static com.innobridge.ethpay.constants.HTTPConstants.OAUTH2_URL;
+import static org.springframework.security.oauth2.core.AuthorizationGrantType.AUTHORIZATION_CODE;
+import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-  public static final String[] WHITE_LIST_URL = {
-          PUBLIC_URL,
-          SWAGGER_UI_URL,
-          SWAGGER_RESOURCES_URL,
-          SWAGGER_RESOURCES_ALL_URL,
-          API_DOCS_URL,
-          API_DOCS_ALL_URL,
-          SIGNUP_URL,
-          OAUTH2_URL
-  };
 
   @Bean
   public AuthenticationProvider authenticationProvider() {
@@ -70,9 +60,38 @@ public class SecurityConfig {
   }
 
   @Bean
+  public ClientRegistrationRepository clientRegistrationRepository(
+          @Value("${GOOGLE_CLIENT_ID}") String googleClientId,
+          @Value("${GOOGLE_CLIENT_SECRET}") String googleClientSecret,
+          @Value("${OAUTH2_REDIRECT_BASE_URI}") String baseRedirectUri) {
+    ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("google")
+            .clientId(googleClientId)
+            .clientSecret(googleClientSecret)
+            .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
+            .authorizationGrantType(AUTHORIZATION_CODE)
+            .redirectUri(baseRedirectUri + "/login/oauth2/code/google")
+            .scope("openid", "profile", "email")
+            .authorizationUri("https://accounts.google.com/o/oauth2/auth")
+            .tokenUri("https://oauth2.googleapis.com/token")
+            .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+            .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+            .userNameAttributeName("sub")
+            .clientName("Google")
+            .build();
+    return new InMemoryClientRegistrationRepository(clientRegistration);
+  }
+
+  @Bean
+  public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+    return new CustomAuthenticationSuccessHandler();
+  }
+
+  @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                  JwtAuthenticationFilter jwtAuthenticationFilter,
-                                                 UsernameEmailPasswordAuthenticationFilter usernameEmailPasswordAuthenticationFilter) throws Exception {
+                                                 UsernameEmailPasswordAuthenticationFilter usernameEmailPasswordAuthenticationFilter,
+                                                 ClientRegistrationRepository clientRegistrationRepository,
+                                                 CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
     http
             .csrf(csrf -> csrf.disable())  // Disable CSRF protection
             .authorizeHttpRequests(auth -> auth
@@ -81,8 +100,13 @@ public class SecurityConfig {
                     .anyRequest().authenticated()  // All other endpoints require authentication
             )
             .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Stateless session management
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Default to stateless
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Stateful for OAuth2 flows
+                    .sessionFixation().none()  // No session fixation protection
             )
+            .oauth2Login(oauth2 ->
+                    oauth2.clientRegistrationRepository(clientRegistrationRepository)// Ensure OAuth2 login is configured
+                            .successHandler(customAuthenticationSuccessHandler))
             .authenticationProvider(authenticationProvider())  // Register custom authentication provider
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterAt(usernameEmailPasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
