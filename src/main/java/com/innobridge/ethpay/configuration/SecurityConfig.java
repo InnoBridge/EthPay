@@ -142,7 +142,7 @@ public class SecurityConfig {
             .oauth2Login(oauth2 ->
                     oauth2.clientRegistrationRepository(clientRegistrationRepository)// Ensure OAuth2 login is configured
                             .successHandler(customAuthenticationSuccessHandler)
-//                            .defaultSuccessUrl("/oauth2/success")  // Redirect to this URL after successful login
+                            .failureUrl("/")// Redirect to this URL after successful login
             )
             .authenticationProvider(authenticationProvider())  // Register custom authentication provider
 //            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
