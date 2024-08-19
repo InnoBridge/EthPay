@@ -15,7 +15,15 @@ public class OAuthController {
 
     @GetMapping("/oauth2/success")
     public ResponseEntity<?> success(@RequestParam String accessToken, HttpServletResponse response) {
+        try {
+            return ResponseEntity.ok(new AccessTokenResponse(accessToken, ACCESS_TOKEN_EXPIRATION_TIME.toSeconds()));
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
 
-        return ResponseEntity.ok(new AccessTokenResponse(accessToken, ACCESS_TOKEN_EXPIRATION_TIME.toSeconds()));
+    @GetMapping("/oauth2/failure")
+    public ResponseEntity<?> failure(@RequestParam String error, HttpServletResponse response) {
+        return ResponseEntity.badRequest().body(error);
     }
 }

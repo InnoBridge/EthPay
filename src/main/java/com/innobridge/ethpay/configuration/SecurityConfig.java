@@ -144,6 +144,7 @@ public class SecurityConfig {
             .oauth2Login(oauth2 ->
                     oauth2.clientRegistrationRepository(clientRegistrationRepository)// Ensure OAuth2 login is configured
                             .successHandler(customAuthenticationSuccessHandler)
+//                            .failureUrl("/oauth2/failure")
             )
             .authenticationProvider(authenticationProvider())  // Register custom authentication provider
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
