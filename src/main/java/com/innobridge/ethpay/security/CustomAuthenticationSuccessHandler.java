@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -22,7 +23,9 @@ import static com.innobridge.ethpay.model.TokenType.REFRESH_TOKEN;
 import static com.innobridge.ethpay.security.JwtUtils.REFRESH_TOKEN_EXPIRATION_TIME;
 
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    private String redirectUri = "http://localhost:8080/oauth2/success";
+    @Value("${OAUTH2_REDIRECT_BASE_URI}")
+    private String baseRedirectUri;
+    private String redirectUri = baseRedirectUri + "/oauth2/success";
     @Autowired
     UserService userService;
     @Autowired
