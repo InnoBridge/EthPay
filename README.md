@@ -88,6 +88,41 @@ After the deployment has completed you can execute your api on
 https://<application url>/swagger-ui/index.html.
 ```
 
+# OAuth 2.0 Authentication (OpenID)
+## Setting up Google OAuth 2.0
+1. Go to the Google Cloud Console: Navigate to [Google Cloud Console](https://console.cloud.google.com/).
+![alt text](./images/Create-Google-API-Project.png)
+2. Create OAuth consent screen, on the left sidebar go to OAuth Consent Screen. Fill in:
+- - App name
+- User support email
+- Upload App logo
+- Add App domain name
+- Add Authorized Domain
+- Developer contact information email
+![alt text](./images/Google-API-Services-OAuth-Consent.png)
+3. Navigate to `APIs & Services > Credentials`. Create Credentials
+[alt text](./images/Google-API-Services-Create-Credentials.png)
+- When ask for Choose `OAuth client ID`.
+- Application type: Web application
+- Add Authorize redirect URIs 
+- - http://localhost:8080/login/oauth2/code/google
+- - https://<application url>/login/oauth2/code/google
+- Then create
+  Create OAuth 2.0 Client IDs with appropriate redirect
+- Download the client secret file.
+4. Go to https://dashboard.render.com/
+Add the following environment variables
+- GOOGLE_CLIENT_ID: <Your Google Client ID>
+- GOOGLE_CLIENT_SECRET: <Your Google Client Secret>
+- GOOGLE_REDIRECT_BASE_URI: <Your Google Redirect URI>
+
+## Signing in with Google
+To sign in with Google, go to the following URL
+```text
+https://<application url>/oauth2/authorization/google
+```
+It will return the JWT access token in the response body and the refresh token in the httpOnly cookie named `refresh-token`.
+
 # Usage
 You can access the OpenAPI UI for calling the endpoints by going to `http://<base-url>/swagger-ui/index.html` in your browser.
 ## POST `/auth/signup`
