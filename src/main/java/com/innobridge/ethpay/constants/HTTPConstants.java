@@ -27,6 +27,9 @@ public class HTTPConstants {
 
     public static final String OAUTH2_URLS = "/oauth2/**";
     public static final String OAUTH2_BASE_URI = "/oauth2/";
+    public static final String LOGIN_OAUTH2_URL = "/login/oauth2/**";
+    public static final String OAUTH2_SUCCESS_URL = "/oauth2/success";
+    public static final String OAUTH2_FAILURE_URL = "/oauth2/failure";
     public static final String[] WHITE_LIST_URL = {
             PUBLIC_URL,
             SWAGGER_UI_URL,
@@ -36,7 +39,7 @@ public class HTTPConstants {
             API_DOCS_ALL_URL,
             SIGNUP_URL,
             OAUTH2_URLS,
-            "/login/oauth2/**"
+            LOGIN_OAUTH2_URL
     };
 
     // Define your matcher to identify OAuth2-related requests
