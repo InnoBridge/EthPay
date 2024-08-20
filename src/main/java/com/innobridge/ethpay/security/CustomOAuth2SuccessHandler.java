@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -23,7 +22,7 @@ import static com.innobridge.ethpay.model.TokenType.ACCESS_TOKEN;
 import static com.innobridge.ethpay.model.TokenType.REFRESH_TOKEN;
 import static com.innobridge.ethpay.security.JwtUtils.REFRESH_TOKEN_EXPIRATION_TIME;
 
-public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Value("${OAUTH2_REDIRECT_BASE_URI}")
     private String baseRedirectUri;
     private String redirectUri;
@@ -41,6 +40,15 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         super.clearAuthenticationAttributes(request);
     }
 
+    /**
+     * We are close to end of the OAuth2 flow, after the Client redirected the user to the OAuth2 provider,
+     * after the user sends its credential/consent to the OAuth2 provider, the OAuth2 provider redirects the user back to the Client.
+     * providing the authorization code/token to the Client to retrieve the users' information.
+     * This method handles the successfull retrieval of the user's information from the OAuth2 provider.
+     * Where we validate that the user's email matches the email in the database, and using the user's information
+     * we generate the JWT access/refresh token, in which we redirect to the /oauth2/success endpoint otherwise
+     * we redirect to the /oauth2/failure endpoint.
+     */
     @Override
     protected void handle(HttpServletRequest request, HttpServletResponse response, Authentication oauthAuthentication) throws IOException {
         String targetUrl = redirectUri.isEmpty() ?

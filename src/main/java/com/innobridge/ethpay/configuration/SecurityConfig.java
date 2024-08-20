@@ -82,8 +82,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-    return new CustomAuthenticationSuccessHandler();
+  public CustomOAuth2SuccessHandler customAuthenticationSuccessHandler() {
+    return new CustomOAuth2SuccessHandler();
   }
 
   @Bean
@@ -91,7 +91,7 @@ public class SecurityConfig {
                                                  JwtAuthenticationFilter jwtAuthenticationFilter,
                                                  UsernameEmailPasswordAuthenticationFilter usernameEmailPasswordAuthenticationFilter,
                                                  ClientRegistrationRepository clientRegistrationRepository,
-                                                 CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) throws Exception {
+                                                 CustomOAuth2SuccessHandler customAuthenticationSuccessHandler) throws Exception {
     http
             .csrf(csrf -> csrf.disable())  // Disable CSRF protection
             .authorizeHttpRequests(auth -> auth
@@ -100,7 +100,14 @@ public class SecurityConfig {
                     .anyRequest().authenticated()  // All other endpoints require authentication
             )
             /**
-             *
+             * Because we are using JWT(self contain) tokens, we can make the api calls stateless, which means
+             * we don't need to store the session in the server. But for OAuth2 flows, because we need to make multiple
+             * calls between the client(our application), user, and the google authorization server, to exchange user
+             * credentials for oauth2 tokens, and exchange the tokens for user information to authenticate the user.
+             * We need to use sessions stored on the client to keep track of the keys and personal information that
+             * is propagated during the sequence of api calls.
+             * So for the sequence of api calls for OAuth2 authentication we need the REST calls to be stateful, while
+             * for the rest of the api calls we can make them stateless.
              */
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Default to stateless
