@@ -64,19 +64,19 @@ public class SecurityConfig {
           @Value("${GOOGLE_CLIENT_ID}") String googleClientId,
           @Value("${GOOGLE_CLIENT_SECRET}") String googleClientSecret,
           @Value("${OAUTH2_REDIRECT_BASE_URI}") String baseRedirectUri) {
-    ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("google")
+    ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(GOOGLE_ID)
             .clientId(googleClientId)
             .clientSecret(googleClientSecret)
             .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
             .authorizationGrantType(AUTHORIZATION_CODE)
-            .redirectUri(baseRedirectUri + "/login/oauth2/code/google")
-            .scope("openid", "profile", "email")
-            .authorizationUri("https://accounts.google.com/o/oauth2/auth")
-            .tokenUri("https://oauth2.googleapis.com/token")
-            .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
-            .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
-            .userNameAttributeName("sub")
-            .clientName("Google")
+            .redirectUri(baseRedirectUri + GOOGLE_REDIRECT_URI_TEMPLATE)
+            .scope(GOOGLE_SCOPES)
+            .authorizationUri(GOOGLE_AUTHORIZATION_URI)
+            .tokenUri(GOOGLE_TOKEN_URI)
+            .userInfoUri(GOOGLE_USER_INFO_URI)
+            .jwkSetUri(GOOGLE_JWK_SET_URI)
+            .userNameAttributeName(OAUTH2_USER_NAME_ATTRIBUTE)
+            .clientName(GOOGLE_CLIENT_NAME)
             .build();
     return new InMemoryClientRegistrationRepository(clientRegistration);
   }
@@ -99,6 +99,9 @@ public class SecurityConfig {
                     .requestMatchers(SIGNIN_METHOD, SIGNIN_URL).permitAll() // Whitelist login POST endpoint
                     .anyRequest().authenticated()  // All other endpoints require authentication
             )
+            /**
+             *
+             */
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Default to stateless
                     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Stateful for OAuth2 flows

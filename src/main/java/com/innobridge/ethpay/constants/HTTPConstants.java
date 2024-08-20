@@ -42,6 +42,16 @@ public class HTTPConstants {
             LOGIN_OAUTH2_URL
     };
 
+    public static final String GOOGLE_AUTHORIZATION_URI = "https://accounts.google.com/o/oauth2/auth";
+    public static final String GOOGLE_TOKEN_URI = "https://oauth2.googleapis.com/token";
+    public static final String GOOGLE_USER_INFO_URI = "https://www.googleapis.com/oauth2/v3/userinfo";
+    public static final String GOOGLE_JWK_SET_URI = "https://www.googleapis.com/oauth2/v3/certs";
+    public static final String GOOGLE_REDIRECT_URI_TEMPLATE = "/login/oauth2/code/google";
+    public static final String GOOGLE_ID = "google";
+    public static final String[] GOOGLE_SCOPES = {"openid", "profile", "email"};
+    public static final String OAUTH2_USER_NAME_ATTRIBUTE = "sub";
+    public static final String GOOGLE_CLIENT_NAME = "Google";
+
     // Define your matcher to identify OAuth2-related requests
     private static final RequestMatcher OAUTH2_REQUEST_MATCHER = new RequestMatcher() {
         @Override
