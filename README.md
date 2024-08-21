@@ -107,8 +107,7 @@ https://<application url>/swagger-ui/index.html.
 - Add Authorize redirect URIs 
 - - http://localhost:8080/login/oauth2/code/google
 - - https://<application url>/login/oauth2/code/google
-- Then create
-  Create OAuth 2.0 Client IDs with appropriate redirect
+- Then create OAuth 2.0 Client IDs with appropriate redirect
 - Download the client secret file.
 4. Go to https://dashboard.render.com/
 Add the following environment variables

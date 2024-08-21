@@ -55,7 +55,7 @@ public class AccountController {
     })
     public ResponseEntity<?> createAccount() {
         try {
-            Account account = accountService.getAccount(getAuthentication().getId());
+            Account account = accountService.createAccount(getAuthentication().getId());
             return ResponseEntity.ok(convertAccountToAccountResponse(account));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
