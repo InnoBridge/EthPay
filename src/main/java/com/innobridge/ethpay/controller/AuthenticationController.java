@@ -2,6 +2,7 @@ package com.innobridge.ethpay.controller;
 
 import com.innobridge.ethpay.model.*;
 import com.innobridge.ethpay.security.JwtUtils;
+import com.innobridge.ethpay.service.AccountService;
 import com.innobridge.ethpay.service.UserService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -33,6 +34,8 @@ public class AuthenticationController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AccountService accountService;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -77,6 +80,8 @@ public class AuthenticationController {
 
         User savedUser = userService.saveUser(user);
 
+        // automatically create an account for user upon account creation
+        accountService.createAccount(savedUser.getId());
         // Return success response with email, username, and userid
         return ResponseEntity.status(HttpStatus.CREATED).body(new SignupResponse(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail()));
     }
