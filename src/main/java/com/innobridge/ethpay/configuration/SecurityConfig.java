@@ -96,7 +96,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())  // Disable CSRF protection
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(WHITE_LIST_URL).permitAll()  // Whitelist signup endpoint
-                    .requestMatchers(SIGNIN_METHOD, SIGNIN_URL).permitAll() // Whitelist login POST endpoint
                     .anyRequest().authenticated()  // All other endpoints require authentication
             )
             /**
@@ -118,8 +117,8 @@ public class SecurityConfig {
                     oauth2.clientRegistrationRepository(clientRegistrationRepository)// Ensure OAuth2 login is configured
                             .successHandler(customAuthenticationSuccessHandler))
             .authenticationProvider(authenticationProvider())  // Register custom authentication provider
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAt(usernameEmailPasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterAt(usernameEmailPasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 }

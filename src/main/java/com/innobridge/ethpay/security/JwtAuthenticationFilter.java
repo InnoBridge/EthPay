@@ -12,8 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,9 +22,10 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.innobridge.ethpay.configuration.SecurityConfig.*;
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
 import static com.innobridge.ethpay.model.TokenType.ACCESS_TOKEN;
+import static com.innobridge.ethpay.model.TokenType.REFRESH_TOKEN;
+import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION = "Authorization";
@@ -55,13 +56,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             /**
              * If the request url is whitelisted, then no need to validate the JWT token
              */
-            if (isWhitelisted(request)) {
+            if (isWhitelistedOrAuthenticated(request)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
+            /**
+             * For /refresh and /logout we expect the refresh token,
+             *  for all other urls we expect the access token.
+             */
             boolean isRefreshCookieUrl = REFRESH_COOKIE_URL.contains(request.getRequestURI());
-            TokenType tokenType = isRefreshCookieUrl ? TokenType.REFRESH_TOKEN : ACCESS_TOKEN;
+            TokenType tokenType = isRefreshCookieUrl ? REFRESH_TOKEN : ACCESS_TOKEN;
 
             String token = getJwtFromRequest(request, isRefreshCookieUrl);
 
@@ -71,8 +76,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
              * Store the authenticated authentication object in the security context
              * so userId, authorities can be used by downstream components, e.g. controllers, services, etc.
              */
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (getContext().getAuthentication() == null) {
+                getContext().setAuthentication(authentication);
             }
 
             filterChain.doFilter(request, response);
@@ -146,14 +151,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         * @param request HTTP request
         * @return true if the request URL is whitelisted, false otherwise
      */
-    private boolean isWhitelisted(HttpServletRequest request) {
+    private boolean isWhitelistedOrAuthenticated(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
-        String requestMethod = request.getMethod();
+        Authentication authentication = getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return true;
+        }
 
         AntPathMatcher pathMatcher = new AntPathMatcher();
         boolean isWhitelistedURL = Stream.of(WHITE_LIST_URL)
                 .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
-        boolean isSigninPost = SIGNIN_URL.equals(requestURI) && SIGNIN_METHOD.name().equalsIgnoreCase(requestMethod);
-        return isWhitelistedURL || isSigninPost;
+        return isWhitelistedURL;
     }
 }

@@ -15,8 +15,6 @@ public class HTTPConstants {
     public static final String SIGNIN_URL = "/auth/signin";
     public static final String SIGNUP_URL = "/auth/signup";
     public static final String SIGNOUT_URL = "/auth/signout";
-    public static final HttpMethod SIGNIN_METHOD = HttpMethod.POST;
-
     public static final String REFRESH_TOKEN_URL = "/auth/refresh";
     public static final String CONTACTS_URL = "/contacts";
 
