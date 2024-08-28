@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import static com.innobridge.ethpay.constants.HTTPConstants.*;
 import static com.innobridge.ethpay.model.TokenType.ACCESS_TOKEN;
+import static com.innobridge.ethpay.model.TokenType.REFRESH_TOKEN;
 import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -60,8 +61,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            /**
+             * For /refresh and /logout we expect the refresh token,
+             *  for all other urls we expect the access token.
+             */
             boolean isRefreshCookieUrl = REFRESH_COOKIE_URL.contains(request.getRequestURI());
-            TokenType tokenType = isRefreshCookieUrl ? TokenType.REFRESH_TOKEN : ACCESS_TOKEN;
+            TokenType tokenType = isRefreshCookieUrl ? REFRESH_TOKEN : ACCESS_TOKEN;
 
             String token = getJwtFromRequest(request, isRefreshCookieUrl);
 
